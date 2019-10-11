@@ -1,37 +1,63 @@
 package com.alttabber.games.screens;
 
 import com.alttabber.games.CardGame;
-import com.alttabber.games.cards.BaseAttackCard;
+import com.alttabber.games.gameobjects.Battle;
+import com.alttabber.games.gameobjects.BattleUI;
+import com.alttabber.games.gameobjects.CardFactory;
 import com.alttabber.games.gameobjects.HandContainer;
+import com.alttabber.games.gameobjects.enemies.EnemyGenerator;
 import com.alttabber.games.gameobjects.player.Player;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+
+import java.lang.reflect.InvocationTargetException;
 
 public class BattleScreen implements Screen {
 
-    final CardGame game;
-    public SpriteBatch batch;
+    private SpriteBatch batch;
     private OrthographicCamera camera;
 
-    public BaseAttackCard card;
+    Texture texture = new Texture(Gdx.files.internal("backgrounds/Background.png"));
+    Image background;
 
-    public Player player;
-    private HandContainer handContainer;
+    BattleUI battleUI;
 
-    public BattleScreen(final CardGame game) {
-        this.game = game;
-        card = new BaseAttackCard();
+    Stage stage;
+
+    Player player;
+
+    public BattleScreen(CardGame game) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        background = new Image(texture);
+        background.setWidth(Gdx.graphics.getWidth());
+        background.setHeight(Gdx.graphics.getHeight());
+
         batch = new SpriteBatch();
-        batch.enableBlending();
-
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 1280, 720);
 
+        stage = new Stage();
+        Gdx.input.setInputProcessor(stage);
+
         player = new Player();
-        handContainer = new HandContainer(player);
+
+        CardFactory.initCards();
+        CardFactory.initCraftable();
+
+        for(int i = 0 ; i < 30; i++) {
+            player.getDeck().addToDeck(CardFactory.getRandomCard());
+        }
+
+        battleUI = new BattleUI(player, stage);
+
+        EnemyGenerator.initEnemyGenerator(player);
+        Battle battle = new Battle(player, EnemyGenerator.nextEnemy(), battleUI);
+
     }
 
     @Override
@@ -43,17 +69,16 @@ public class BattleScreen implements Screen {
     public void render(float delta) {
         Gdx.gl.glClearColor(0, 0, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        camera.update();
+
         batch.begin();
 
-//        card.draw(batch, 0, 0);
-        handContainer.draw(batch, 200, -10);
+        background.draw(batch, 1.0f);
+
+        battleUI.draw(batch);
+
+        Battle.getCurrentBattle().getEnemy().draw(batch);
 
         batch.end();
-
-        if(Gdx.input.justTouched()){
-            player.getDeck().draw();
-        }
     }
 
     @Override

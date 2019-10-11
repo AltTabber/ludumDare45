@@ -13,6 +13,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
+import java.lang.reflect.InvocationTargetException;
+
 public class MainMenuScreen implements Screen {
 
     final CardGame game;
@@ -51,7 +53,17 @@ public class MainMenuScreen implements Screen {
                 newGameButton.remove();
                 optionsButton.remove();
                 exitButton.remove();
-                game.setScreen(new BattleScreen(game));
+                try {
+                    game.setScreen(new BattleScreen(game));
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                } catch (NoSuchMethodException e) {
+                    e.printStackTrace();
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
             }
         });
 

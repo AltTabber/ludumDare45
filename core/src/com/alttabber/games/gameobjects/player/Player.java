@@ -1,10 +1,8 @@
 package com.alttabber.games.gameobjects.player;
 
-import com.alttabber.games.cards.BaseAttackCard;
-import com.alttabber.games.cards.BaseDefenceCard;
+import com.alttabber.games.gameobjects.Card;
 import com.alttabber.games.gameobjects.Deck;
-
-import java.util.ArrayList;
+import com.badlogic.gdx.graphics.g2d.Batch;
 
 public class Player {
 
@@ -18,20 +16,45 @@ public class Player {
         this.mp = 3;
         playerState = PlayerState.ALIVE;
         deck = new Deck();
-        deck.addToDeck(new BaseAttackCard());
-        deck.addToDeck(new BaseAttackCard());
-        deck.addToDeck(new BaseAttackCard());
-        deck.addToDeck(new BaseAttackCard());
-        deck.addToDeck(new BaseAttackCard());
-        deck.addToDeck(new BaseDefenceCard());
-        deck.addToDeck(new BaseDefenceCard());
-        deck.addToDeck(new BaseDefenceCard());
-        deck.addToDeck(new BaseDefenceCard());
-        deck.addToDeck(new BaseDefenceCard());
-        deck.shuffleDeck();
     }
 
     public Deck getDeck() {
         return deck;
+    }
+
+    public void setDeck(Deck deck) {
+        this.deck = deck;
+    }
+
+    public void draw(Batch batch) {
+    }
+
+    public float calculateDamage(float damage) {
+        //TODO
+        return damage;
+    }
+
+    public void addAttack(float i) {
+        //TODO
+    }
+
+    public void addArmor(float i) {
+        //TODO
+    }
+
+    public void healHp(float i) {
+        //TODO
+    }
+
+    public void minusHP(float i) {
+        //TODO
+    }
+
+    public void clearEffects() {
+        //TODO
+    }
+
+    public void addToHand(Card card) {
+        deck.addToHand(card);
     }
 }

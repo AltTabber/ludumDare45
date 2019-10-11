@@ -2,94 +2,54 @@ package com.alttabber.games.gameobjects;
 
 import com.alttabber.games.gameobjects.player.Player;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 
 import java.util.List;
 
-public class HandContainer implements Drawable {
+public class HandContainer {
 
-    private Player player;
-    private float width;
+    Player player;
+    Stage stage;
+    float width;
+    float maxDelta;
+    float maxCountWithoutDelta;
 
-    public HandContainer(Player player){
+    public HandContainer(Player player, Stage stage) {
         this.player = player;
-        this.width = 900;
+        this.stage = stage;
+
+        this.width = 600;
+        this.maxDelta = 5;
+        this.maxCountWithoutDelta = 4;
     }
 
 
-    @Override
-    public void draw(Batch batch, float x, float y, float width, float height) {
-        this.width = width;
-        List<Card> handCards = player.getDeck().hand;
-        for(int i = 0; i < handCards.size(); i++){
-            Card card = handCards.get(i);
-            float _x = x + i*(this.width - card.rect.width)/handCards.size();
-            float _y = y;
-            card.draw(batch, _x, _y, card.rect.width, card.rect.height);
+    public void draw(Batch batch, int x, int y) {
+        List<Card> hand = player.getDeck().getHand();
+        if(hand.size() <= maxCountWithoutDelta){
+            for(int i = 0; i< hand.size(); i++ ){
+                Card card = player.getDeck().getHand().get(i);
+                card.addToStage(stage);
+                float _x = x + this.width - ((Card.getWidth() * i) + maxDelta * (i - 1));
+                float _y = y;
+                if(!card.isTouched) {
+                    card.setXY(_x, _y);
+                }
+                card.draw(batch);
+            }
+        }else{
+            float delta = (this.width/2 - (Card.getWidth() * hand.size())/2) / (hand.size() - 1);
+            for(int i = 0; i < hand.size(); i++){
+                Card card = player.getDeck().getHand().get(i);
+                card.addToStage(stage);
+                float _x = x + this.width - ((Card.getWidth() * i) + delta * (i - 1));
+                float _y = y;
+                if(!card.isTouched) {
+                    card.setXY(_x, _y);
+                }
+                card.draw(batch);
+            }
         }
-    }
-
-    public void draw(Batch batch, float x, float y){
-        draw(batch, x, y, this.width, 0);
-    }
-
-    @Override
-    public float getLeftWidth() {
-        return 0;
-    }
-
-    @Override
-    public void setLeftWidth(float leftWidth) {
-
-    }
-
-    @Override
-    public float getRightWidth() {
-        return 0;
-    }
-
-    @Override
-    public void setRightWidth(float rightWidth) {
-
-    }
-
-    @Override
-    public float getTopHeight() {
-        return 0;
-    }
-
-    @Override
-    public void setTopHeight(float topHeight) {
-
-    }
-
-    @Override
-    public float getBottomHeight() {
-        return 0;
-    }
-
-    @Override
-    public void setBottomHeight(float bottomHeight) {
-
-    }
-
-    @Override
-    public float getMinWidth() {
-        return 0;
-    }
-
-    @Override
-    public void setMinWidth(float minWidth) {
-
-    }
-
-    @Override
-    public float getMinHeight() {
-        return 0;
-    }
-
-    @Override
-    public void setMinHeight(float minHeight) {
 
     }
 }

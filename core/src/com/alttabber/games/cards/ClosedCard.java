@@ -6,15 +6,19 @@ import com.badlogic.gdx.graphics.Texture;
 
 import java.util.UUID;
 
-public class BaseDefenceCard extends Card{
+public class ClosedCard extends Card {
 
-    private static Texture texture = new Texture(Gdx.files.internal("cards/01_Block.png"));
+    private static Texture texture = new Texture(Gdx.files.internal("cards/00_Shirt.png"));
 
-    public BaseDefenceCard() {
-        this.basicCost = 1;
-        this.name = "BaseDefenceCard";
+    public ClosedCard() {
+        this.name = "Closed";
         this.id = name + "-" + UUID.randomUUID();
         this.cardTexture = texture;
+    }
+
+    @Override
+    public void play() {
+        //TODO
     }
 
 }

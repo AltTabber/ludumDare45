@@ -1,26 +1,103 @@
 package com.alttabber.games.gameobjects;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.scenes.scene2d.EventListener;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 
-import java.awt.*;
 import java.util.UUID;
 
-public class Card implements Drawable {
+public abstract class Card {
 
     protected Integer basicCost;
     protected String id;
     protected String name = "Error_card";
     protected Texture cardTexture;
-    protected Rectangle rect;
+    protected Image image;
+
+    protected static float height = 1366 / 6;
+    protected static float width = 768 / 6;
+
+    private Stage stage;
+
+    protected boolean isTouched = false;
+    protected boolean isFromCraft = false;
 
     public Card() {
         basicCost = 0;
         this.id = name + "-" + UUID.randomUUID();
-        this.rect = new Rectangle();
-        this.rect.height = 1366/6;
-        this.rect.width = 768/6;
+    }
+
+    public void initImage() {
+        if (image == null) {
+            image = new Image(cardTexture);
+            image.setWidth(width);
+            image.setHeight(height);
+            setDefaultListeners();
+        }
+    }
+
+    public void setCardListener(EventListener listener) {
+        initImage();
+        image.addListener(listener);
+        image.addCaptureListener(listener);
+    }
+
+    public void setDefaultListeners() {
+
+
+        setCardListener(new DragListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                return super.touchDown(event, x, y, pointer, button);
+            }
+
+            @Override
+            public void touchDragged(InputEvent event, float x, float y, int pointer) {
+                isTouched = true;
+                Card.this.image.moveBy(x - image.getWidth() / 2, y - image.getHeight() / 2);
+
+                if(ActionBlocks.getEnemyBlockRect().contains(Gdx.input.getX(), Gdx.input.getY())){
+                    Card.this.setColor(0.7f, 0.f, 0.f, 0.5f);
+                }else if(ActionBlocks.getCraftBlockRect().contains(Gdx.input.getX(), Gdx.input.getY())){
+                    Card.this.setColor(0.f, 0.7f, 0.f, 0.5f);
+                }else{
+                    Card.this.setColor(1.f, 1.f, 1.f, 0.5f);
+                }
+            }
+
+            @Override
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                if(ActionBlocks.getEnemyBlockRect().contains(Gdx.input.getX(), Gdx.input.getY())){
+                    Card.this.setColor(1.f, 1.f, 1.f, 1.f);
+                    Battle.getCurrentBattle().playCard(Card.this);
+                }else if(ActionBlocks.getCraftBlockRect().contains(Gdx.input.getX(), Gdx.input.getY())){
+                    Card.this.setColor(1.f, 1.f, 1.f, 1.f);
+                    Battle.getCurrentBattle().addToCraft(Card.this);
+                }else{
+                    Card.this.setColor(1.f, 1.f, 1.f, 1.f);
+                    Battle.getCurrentBattle().addToHand(Card.this);
+                }
+                isTouched = false;
+                super.touchUp(event, x, y, pointer, button);
+            }
+        });
+
+    }
+
+    public void setColor(float r, float g, float b, float a){
+        this.image.setColor(r, g, b, a);
+    }
+
+    public abstract void play();
+
+    public void clear(){
+        image.clearListeners();
     }
 
     @Override
@@ -28,74 +105,52 @@ public class Card implements Drawable {
         return "Card{id='" + id + "}";
     }
 
-    @Override
+    public void addToStage(Stage stage) {
+        this.stage = stage;
+        initImage();
+        this.stage.addActor(image);
+    }
+
     public void draw(Batch batch, float x, float y, float width, float height) {
-        batch.draw(cardTexture, x, y, width, height);
-        this.rect.x = (int) Math.floor(x);
-        this.rect.y = (int) Math.floor(y);
-    }
 
-    public void draw(Batch batch, float x, float y){
-        draw(batch, x, y, this.rect.width, this.rect.height);
-    }
-
-    @Override
-    public float getLeftWidth() {
-        return 0;
-    }
-
-    @Override
-    public void setLeftWidth(float leftWidth) {
+        initImage();
+        image.setX(x);
+        image.setY(y);
+        this.image.draw(batch, 1);
 
     }
 
-    @Override
-    public float getRightWidth() {
-        return 0;
+    public void draw(Batch batch, float x, float y) {
+        draw(batch, x, y, width, height);
     }
 
-    @Override
-    public void setRightWidth(float rightWidth) {
-
+    public void draw(Batch batch) {
+        draw(batch, image.getX(), image.getY(), width, height);
     }
 
-    @Override
-    public float getTopHeight() {
-        return 0;
+    public void setXY(float x, float y) {
+        initImage();
+        image.setX(x);
+        image.setY(y);
     }
 
-    @Override
-    public void setTopHeight(float topHeight) {
-
+    public float getX(){
+        return image.getX();
     }
 
-    @Override
-    public float getBottomHeight() {
-        return 0;
+    public float getY(){
+        return image.getY();
     }
 
-    @Override
-    public void setBottomHeight(float bottomHeight) {
-
+    public void clearListeners() {
+        image.clearListeners();
     }
 
-    @Override
-    public float getMinWidth() {
-        return 0;
+    public float getHeight() {
+        return height;
     }
 
-    @Override
-    public void setMinWidth(float minWidth) {
-
-    }
-
-    @Override
-    public float getMinHeight() {
-        return 0;
-    }
-
-    @Override
-    public void setMinHeight(float minHeight) {
-
+    public static float getWidth() {
+        return width;
     }
 }
